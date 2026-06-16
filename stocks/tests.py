@@ -1,10 +1,12 @@
 from decimal import Decimal
+from unittest import mock
 
 from django.contrib.auth.models import User
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from .models import Stock
+from . import services
 
 
 class StockCrudTests(TestCase):
@@ -89,3 +91,66 @@ class DataIsolationTests(TestCase):
         res = self.client.post(reverse("stocks:delete", args=[self.bob_stock.pk]))
         self.assertEqual(res.status_code, 404)
         self.assertTrue(Stock.objects.filter(pk=self.bob_stock.pk).exists())
+
+
+class EvaluationTests(TestCase):
+    """評価額・損益・判定の計算ロジック（円建て統一）を検証する。"""
+
+    def setUp(self):
+        self.user = User.objects.create_user(username="me", password="x")
+
+    def test_judge_thresholds(self):
+        self.assertEqual(services.judge(Decimal("25")), "利確検討")
+        self.assertEqual(services.judge(Decimal("-15")), "損切り検討")
+        self.assertEqual(services.judge(Decimal("5")), "ホールド")
+
+    def test_evaluate_jp(self):
+        """日本株: 評価額 = 価格 × 株数、損益 = 評価額 − cost。"""
+        stock = Stock(owner=self.user, name="任天堂", ticker="7974.T",
+                      market="jp", shares=Decimal("1.0035545904"), cost=10000)
+        ev = services.evaluate(stock, price=Decimal("12000"), usdjpy=None)
+        self.assertEqual(ev["value"], 12043)   # 12000 × 1.00355... を四捨五入
+        self.assertEqual(ev["judgment"], "利確検討")
+
+    def test_evaluate_us_converted_to_yen(self):
+        """米国株: ドル価格 × 株数 × USD/JPY で円換算した評価額になる。"""
+        stock = Stock(owner=self.user, name="SOXL", ticker="SOXL",
+                      market="us", shares=Decimal("160.36"), buy_price=41726)
+        ev = services.evaluate(stock, price=Decimal("25"), usdjpy=Decimal("150"))
+        self.assertEqual(ev["value"], 601350)  # 25 × 160.36 × 150
+
+
+class ReportApiTests(TestCase):
+    """評価レポートAPIの動作と、全ユーザーAPIのトークン保護を検証する。"""
+
+    def setUp(self):
+        self.user = User.objects.create_user(username="me", password="pass12345")
+        Stock.objects.create(owner=self.user, name="任天堂", ticker="7974.T",
+                             market="jp", shares=Decimal("1.0"), cost=10000)
+
+    @mock.patch.object(services, "fetch_usdjpy", return_value=Decimal("150"))
+    @mock.patch.object(services, "fetch_price", return_value=Decimal("12000"))
+    def test_report_api_returns_evaluation(self, _price, _fx):
+        self.client.login(username="me", password="pass12345")
+        res = self.client.get(reverse("stocks:report_api"))
+        self.assertEqual(res.status_code, 200)
+        data = res.json()
+        self.assertEqual(data["items"][0]["ticker"], "7974.T")
+        self.assertEqual(data["items"][0]["value"], 12000)
+
+    def test_report_api_requires_login(self):
+        res = self.client.get(reverse("stocks:report_api"))
+        self.assertEqual(res.status_code, 302)  # 未ログインはログインへ
+
+    @override_settings(REPORT_API_TOKEN="secret")
+    def test_report_all_rejects_wrong_token(self):
+        res = self.client.get(reverse("stocks:report_all_api"), {"token": "wrong"})
+        self.assertEqual(res.status_code, 403)
+
+    @override_settings(REPORT_API_TOKEN="secret")
+    @mock.patch.object(services, "fetch_usdjpy", return_value=Decimal("150"))
+    @mock.patch.object(services, "fetch_price", return_value=Decimal("12000"))
+    def test_report_all_accepts_correct_token(self, _price, _fx):
+        res = self.client.get(reverse("stocks:report_all_api"), {"token": "secret"})
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(len(res.json()["reports"]), 1)

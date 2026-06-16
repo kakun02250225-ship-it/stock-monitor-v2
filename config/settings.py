@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -128,3 +129,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 LOGIN_URL = "login"               # 未ログイン時に飛ばすログインページ
 LOGIN_REDIRECT_URL = "stocks:list"   # ログイン成功後に表示するページ
 LOGOUT_REDIRECT_URL = "login"     # ログアウト後に表示するページ
+
+# フェーズ3: 全ユーザー分レポートAPI(/api/report/all/)を守る合言葉。
+# GitHub Actions などから叩くときに ?token=... で一致させる。
+# 本番では環境変数 REPORT_API_TOKEN に設定する（コードに直書きしない）。
+REPORT_API_TOKEN = os.environ.get("REPORT_API_TOKEN", "")
