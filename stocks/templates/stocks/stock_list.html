@@ -16,7 +16,6 @@
             <th>市場</th>
             <th>保有株数</th>
             <th>投資元本(円)</th>
-            <th>買付額</th>
             <th>操作</th>
         </tr>
     </thead>
@@ -28,7 +27,6 @@
             <td>{{ stock.get_market_display }}</td>
             <td>{{ stock.shares }}</td>
             <td>{{ stock.cost|default:"—" }}</td>
-            <td>{{ stock.buy_price|default:"—" }}</td>
             <td>
                 <a class="btn btn-edit" href="{% url 'stocks:edit' stock.pk %}">編集</a>
                 <a class="btn btn-del" href="{% url 'stocks:delete' stock.pk %}">削除</a>

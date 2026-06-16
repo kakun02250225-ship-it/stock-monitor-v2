@@ -13,4 +13,4 @@ class StockForm(forms.ModelForm):
     class Meta:
         model = Stock
         # ユーザーが入力する項目だけを並べる（created_at などは自動なので除外）
-        fields = ["name", "ticker", "market", "shares", "cost", "buy_price"]
+        fields = ["name", "ticker", "market", "shares", "cost"]

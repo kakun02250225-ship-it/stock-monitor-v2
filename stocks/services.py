@@ -48,22 +48,22 @@ def _yen(value: Decimal) -> int:
 def evaluate(stock, price: Decimal, usdjpy: Decimal | None) -> dict:
     """1銘柄の評価額・損益・リターン%・判定を「円建て」で計算して返す。
 
-    - 日本株: 価格は円。評価額 = price × shares、元本 = cost
-    - 米国株: 価格はドル。評価額 = price × shares × USD/JPY、元本 = buy_price（円）
-      ※ 米国株も円に換算して日本株と見方を揃える（円建て統一）
+    - 日本株: 価格は円。評価額 = price × shares、元本 = cost（円）
+    - 米国株: 価格はドル。評価額 = price × shares × USD/JPY、元本 = cost（円）
+      ※ 評価額だけ円換算し、元本は円のまま。日本株と見方を揃える（円建て統一）
     """
     shares = stock.shares
+    # 元本は日本株・米国株ともに円（PayPayは円で投資するため）。
+    cost = Decimal(stock.cost or 0)
 
     if stock.market == "us":
-        # 米国株はドル建て。価格も元本(buy_price)も同じドル建てなので、
-        # 評価額・元本の両方を為替で円に換算する（片方だけ換算すると%が壊れる）。
+        # 米国株は現在価格がドル建てなので、評価額だけ為替で円に換算する。
+        # 元本(cost)はすでに円なので換算しない。
         rate = usdjpy if usdjpy is not None else Decimal("0")
         value = price * shares * rate
-        cost = Decimal(stock.buy_price or 0) * rate
     else:
-        # 日本株はそのまま円
+        # 日本株は価格も円なのでそのまま
         value = price * shares
-        cost = Decimal(stock.cost or 0)
 
     profit = value - cost
     # 元本が0だと割り算できないので、その場合はリターン0%扱いにする

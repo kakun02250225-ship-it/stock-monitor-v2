@@ -112,16 +112,17 @@ class EvaluationTests(TestCase):
         self.assertEqual(ev["value"], 12043)   # 12000 × 1.00355... を四捨五入
         self.assertEqual(ev["judgment"], "利確検討")
 
-    def test_evaluate_us_converted_to_yen(self):
-        """米国株: 価格も元本(buy_price)も同じドル建てとして円に換算する。"""
-        stock = Stock(owner=self.user, name="SOXL", ticker="SOXL",
-                      market="us", shares=Decimal("160.36"), buy_price=41726)
+    def test_evaluate_us_value_converted_cost_stays_yen(self):
+        """米国株: 評価額だけドル→円換算。元本(cost)は円のまま。"""
+        # 実データ: SOXL 0.6704924970株、元本28,000円
+        stock = Stock(owner=self.user, name="半導体チャレンジコース", ticker="SOXL",
+                      market="us", shares=Decimal("0.6704924970"), cost=28000)
         ev = services.evaluate(stock, price=Decimal("272.5"), usdjpy=Decimal("160"))
-        # 元本もドル建て → 円換算: 41726 × 160
-        self.assertEqual(ev["cost"], 6676160)
-        # 約 +4.7% のゆるやかな利益なので「ホールド」になる
+        # 元本は換算しない（円のまま）
+        self.assertEqual(ev["cost"], 28000)
+        # 評価額 = 272.5 × 0.6704924970 × 160 ≈ 29,233円 → ゆるやかな利益でホールド
+        self.assertAlmostEqual(ev["value"], 29233, delta=5)
         self.assertEqual(ev["judgment"], "ホールド")
-        self.assertAlmostEqual(ev["return_pct"], 4.72, delta=0.1)
 
 
 class ReportApiTests(TestCase):

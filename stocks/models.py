@@ -33,11 +33,9 @@ class Stock(models.Model):
     # 桁あふれしないよう小数10桁まで保持する。
     shares = models.DecimalField("保有株数", max_digits=20, decimal_places=10)
 
-    # 日本株は投資元本（円）で損益を計算する。米国株では使わないので任意。
+    # 投資元本（円）。日本株も米国株も PayPay では円で投資するため、共通で円で持つ。
+    # 評価額は、日本株はそのまま円、米国株は現在価格(ドル)を為替で円換算して求める。
     cost = models.PositiveIntegerField("投資元本（円）", null=True, blank=True)
-
-    # 米国株（SOXLなど）は取得単価ベースで持つケース用。日本株では使わないので任意。
-    buy_price = models.PositiveIntegerField("買付額", null=True, blank=True)
 
     # 作成日時・更新日時（一覧の並び順や確認用）
     created_at = models.DateTimeField("作成日時", auto_now_add=True)
