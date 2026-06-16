@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}保有銘柄一覧{% endblock %}
+
+{% block content %}
+<h1>保有銘柄一覧</h1>
+
+<p><a class="btn btn-add" href="{% url 'stocks:add' %}">＋ 銘柄を追加</a></p>
+
+{% if stocks %}
+<table>
+    <thead>
+        <tr>
+            <th>会社名</th>
+            <th>ティッカー</th>
+            <th>市場</th>
+            <th>保有株数</th>
+            <th>投資元本(円)</th>
+            <th>買付額</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for stock in stocks %}
+        <tr>
+            <td>{{ stock.name }}</td>
+            <td>{{ stock.ticker }}</td>
+            <td>{{ stock.get_market_display }}</td>
+            <td>{{ stock.shares }}</td>
+            <td>{{ stock.cost|default:"—" }}</td>
+            <td>{{ stock.buy_price|default:"—" }}</td>
+            <td>
+                <a class="btn btn-edit" href="{% url 'stocks:edit' stock.pk %}">編集</a>
+                <a class="btn btn-del" href="{% url 'stocks:delete' stock.pk %}">削除</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>まだ銘柄が登録されていません。「銘柄を追加」から始めましょう。</p>
+{% endif %}
+{% endblock %}

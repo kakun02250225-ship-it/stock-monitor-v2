@@ -1,0 +1,44 @@
+[
+  {
+    "model": "stocks.stock",
+    "pk": 1,
+    "fields": {
+      "name": "SOXL",
+      "ticker": "SOXL",
+      "market": "us",
+      "shares": "160.36",
+      "cost": null,
+      "buy_price": 41726,
+      "created_at": "2026-06-16T00:00:00+09:00",
+      "updated_at": "2026-06-16T00:00:00+09:00"
+    }
+  },
+  {
+    "model": "stocks.stock",
+    "pk": 2,
+    "fields": {
+      "name": "任天堂",
+      "ticker": "7974.T",
+      "market": "jp",
+      "shares": "1.0035545904",
+      "cost": 10000,
+      "buy_price": null,
+      "created_at": "2026-06-16T00:00:01+09:00",
+      "updated_at": "2026-06-16T00:00:01+09:00"
+    }
+  },
+  {
+    "model": "stocks.stock",
+    "pk": 3,
+    "fields": {
+      "name": "日立製作所",
+      "ticker": "6501.T",
+      "market": "jp",
+      "shares": "0.9075014067",
+      "cost": 4500,
+      "buy_price": null,
+      "created_at": "2026-06-16T00:00:02+09:00",
+      "updated_at": "2026-06-16T00:00:02+09:00"
+    }
+  }
+]

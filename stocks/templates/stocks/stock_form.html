@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{# object があれば編集、なければ新規追加。タイトルを出し分ける #}
+{% block title %}{% if object %}銘柄を編集{% else %}銘柄を追加{% endif %}{% endblock %}
+
+{% block content %}
+<h1>{% if object %}銘柄を編集{% else %}銘柄を追加{% endif %}</h1>
+
+<form method="post">
+    {% csrf_token %}
+    {# as_p でフォームの各入力欄を <p> で囲んで表示する #}
+    {{ form.as_p }}
+    <p>
+        <button class="btn btn-add" type="submit">保存</button>
+        <a class="btn btn-edit" href="{% url 'stocks:list' %}">キャンセル</a>
+    </p>
+</form>
+{% endblock %}

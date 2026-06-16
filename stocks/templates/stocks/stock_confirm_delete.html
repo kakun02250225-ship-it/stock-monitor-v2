@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}銘柄を削除{% endblock %}
+
+{% block content %}
+<h1>銘柄を削除</h1>
+
+<p>「<strong>{{ object }}</strong>」を本当に削除しますか？</p>
+
+<form method="post">
+    {% csrf_token %}
+    <p>
+        <button class="btn btn-del" type="submit">削除する</button>
+        <a class="btn btn-edit" href="{% url 'stocks:list' %}">キャンセル</a>
+    </p>
+</form>
+{% endblock %}
