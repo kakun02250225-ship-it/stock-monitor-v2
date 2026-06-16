@@ -55,10 +55,11 @@ def evaluate(stock, price: Decimal, usdjpy: Decimal | None) -> dict:
     shares = stock.shares
 
     if stock.market == "us":
-        # 米国株はドル建て価格を為替で円に換算する
+        # 米国株はドル建て。価格も元本(buy_price)も同じドル建てなので、
+        # 評価額・元本の両方を為替で円に換算する（片方だけ換算すると%が壊れる）。
         rate = usdjpy if usdjpy is not None else Decimal("0")
         value = price * shares * rate
-        cost = Decimal(stock.buy_price or 0)
+        cost = Decimal(stock.buy_price or 0) * rate
     else:
         # 日本株はそのまま円
         value = price * shares

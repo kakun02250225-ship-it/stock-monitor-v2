@@ -113,11 +113,15 @@ class EvaluationTests(TestCase):
         self.assertEqual(ev["judgment"], "利確検討")
 
     def test_evaluate_us_converted_to_yen(self):
-        """米国株: ドル価格 × 株数 × USD/JPY で円換算した評価額になる。"""
+        """米国株: 価格も元本(buy_price)も同じドル建てとして円に換算する。"""
         stock = Stock(owner=self.user, name="SOXL", ticker="SOXL",
                       market="us", shares=Decimal("160.36"), buy_price=41726)
-        ev = services.evaluate(stock, price=Decimal("25"), usdjpy=Decimal("150"))
-        self.assertEqual(ev["value"], 601350)  # 25 × 160.36 × 150
+        ev = services.evaluate(stock, price=Decimal("272.5"), usdjpy=Decimal("160"))
+        # 元本もドル建て → 円換算: 41726 × 160
+        self.assertEqual(ev["cost"], 6676160)
+        # 約 +4.7% のゆるやかな利益なので「ホールド」になる
+        self.assertEqual(ev["judgment"], "ホールド")
+        self.assertAlmostEqual(ev["return_pct"], 4.72, delta=0.1)
 
 
 class ReportApiTests(TestCase):
