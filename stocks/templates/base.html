@@ -16,9 +16,24 @@
         .btn-del { background: #c44; color: #fff; }
         form p { margin: .8rem 0; }
         label { display: inline-block; min-width: 8rem; font-weight: bold; }
+        .topbar { display: flex; justify-content: flex-end; align-items: center; gap: .8rem; font-size: .9rem; color: #555; }
+        .topbar form { margin: 0; }
+        .topbar button { background: none; border: none; color: #46a; cursor: pointer; font-size: .9rem; text-decoration: underline; padding: 0; }
     </style>
 </head>
 <body>
+    {# ログイン中だけ「ユーザー名」と「ログアウト」を出す #}
+    {% if user.is_authenticated %}
+    <div class="topbar">
+        <span>{{ user.username }} さん</span>
+        {# Django 5 ではログアウトは POST 必須。フォームで送る #}
+        <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit">ログアウト</button>
+        </form>
+    </div>
+    {% endif %}
+
     {% block content %}{% endblock %}
 </body>
 </html>

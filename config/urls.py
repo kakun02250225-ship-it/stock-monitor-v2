@@ -20,6 +20,8 @@ from django.urls import include, path
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    # Django標準の認証URL（/accounts/login/ や /accounts/logout/ など）
+    path("accounts/", include("django.contrib.auth.urls")),
     # ルート("/")以下を stocks アプリの urls.py に任せる
     path("", include("stocks.urls")),
 ]

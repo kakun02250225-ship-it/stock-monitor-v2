@@ -3,6 +3,7 @@
     "model": "stocks.stock",
     "pk": 1,
     "fields": {
+      "owner": 1,
       "name": "SOXL",
       "ticker": "SOXL",
       "market": "us",
@@ -17,6 +18,7 @@
     "model": "stocks.stock",
     "pk": 2,
     "fields": {
+      "owner": 1,
       "name": "任天堂",
       "ticker": "7974.T",
       "market": "jp",
@@ -31,6 +33,7 @@
     "model": "stocks.stock",
     "pk": 3,
     "fields": {
+      "owner": 1,
       "name": "日立製作所",
       "ticker": "6501.T",
       "market": "jp",

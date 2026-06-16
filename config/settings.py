@@ -122,3 +122,9 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+# 認証まわりの遷移先（フェーズ2）
+LOGIN_URL = "login"               # 未ログイン時に飛ばすログインページ
+LOGIN_REDIRECT_URL = "stocks:list"   # ログイン成功後に表示するページ
+LOGOUT_REDIRECT_URL = "login"     # ログアウト後に表示するページ

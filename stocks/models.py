@@ -1,11 +1,12 @@
+from django.conf import settings
 from django.db import models
 
 
 class Stock(models.Model):
     """保有している1銘柄を表すモデル。
 
-    フェーズ1（自分1人用）では owner は持たない。
-    マルチユーザー化（フェーズ2）で owner フィールドを追加する。
+    フェーズ2でマルチユーザー化。owner（持ち主）を必須にし、
+    各ユーザーは自分の owner の銘柄だけを操作できる。
     """
 
     # 市場区分の選択肢。DBには "jp" / "us" が入り、画面には日本語ラベルを出す。
@@ -13,6 +14,16 @@ class Stock(models.Model):
         ("jp", "日本株"),
         ("us", "米国株"),
     ]
+
+    # 持ち主。Django標準のユーザーと1対多で紐づける。
+    # ユーザーが削除されたら、その人の銘柄もまとめて削除する（CASCADE）。
+    # related_name="stocks" で user.stocks.all() のように逆引きできる。
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="stocks",
+        verbose_name="持ち主",
+    )
 
     name = models.CharField("会社名", max_length=100)
     ticker = models.CharField("ティッカー", max_length=20)
